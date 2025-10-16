@@ -1,0 +1,14 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+    <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect width="1920" height="1080" fill="url(#bg)"/>
+    <text x="960" y="400" text-anchor="middle" fill="white" font-size="120" font-family="Arial, sans-serif" font-weight="bold">AI Raitha Mitra</text>
+    <text x="960" y="500" text-anchor="middle" fill="#a7f3d0" font-size="60" font-family="Arial, sans-serif">Disease Detection Demo</text>
+    <text x="960" y="600" text-anchor="middle" fill="white" font-size="80" font-family="Arial, sans-serif">🌱</text>
+    <text x="960" y="700" text-anchor="middle" fill="white" font-size="40" font-family="Arial, sans-serif">Click to watch the demo</text>
+</svg>

@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .hero-button {
+    @apply backdrop-blur-sm transition-all duration-300 ease-out shadow-lg border-none relative overflow-hidden;
+  }
+  
+  .hero-button::before {
+    content: '';
+    @apply absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-500;
+  }
+  
+  .hero-button:hover::before {
+    @apply left-full;
+  }
+  
+  .hero-button:hover {
+    @apply -translate-y-1 scale-105 shadow-xl;
+  }
+  
+  .hero-button:active {
+    @apply -translate-y-0.5 scale-102 transition-all duration-100;
+  }
+  
+  .feature-card {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .feature-card:hover {
+    @apply -translate-y-2 shadow-xl;
+  }
+  
+  .message-bubble {
+    @apply animate-fadeInUp;
+  }
+  
+  .typing-dot {
+    @apply animate-typing;
+  }
+  
+  .typing-dot:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  
+  .typing-dot:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+  
+  .conversation-item {
+    @apply transition-all duration-200 ease-out rounded-lg cursor-pointer;
+  }
+  
+  .conversation-item:hover {
+    @apply bg-gray-50 translate-x-1;
+  }
+  
+  .conversation-item.active {
+    @apply bg-green-50 border-l-4 border-green-500;
+  }
+  
+  .chat-input {
+    @apply resize-none min-h-11 max-h-30 rounded-xl transition-all duration-200;
+  }
+  
+  .chat-input:focus {
+    @apply ring-2 ring-green-500 border-transparent shadow-sm shadow-green-500/10;
+  }
+  
+  .sidebar {
+    @apply transition-transform duration-300 ease-out;
+  }
+  
+  .sidebar-hidden {
+    @apply -translate-x-full;
+  }
+}
+
+/* Custom utility styles */
+@layer utilities {
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+  }
+  
+  .backdrop-blur-10 {
+    backdrop-filter: blur(10px);
+  }
+  
+  .bg-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+}

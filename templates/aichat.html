@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - Raitha Mitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .chat-container {
+            height: calc(100vh - 80px);
+        }
+        
+        .chat-messages {
+            height: calc(100% - 120px);
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            margin-left: auto;
+            border-radius: 18px 18px 4px 18px;
+        }
+        
+        .ai-message {
+            background: #f3f4f6;
+            color: #374151;
+            margin-right: auto;
+            border-radius: 18px 18px 18px 4px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border-radius: 18px 18px 18px 4px;
+            border-left: 4px solid #10b981;
+            margin-right: auto;
+            max-width: 80px;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .conversation-item {
+            transition: all 0.2s ease;
+        }
+        
+        .conversation-item:hover {
+            background: #f9fafb;
+            transform: translateX(4px);
+        }
+        
+        .conversation-item.active {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+        }
+        
+        .chat-input {
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar-visible {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 20;
+                background: white;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                width: 280px;
+                height: calc(100vh - 64px);
+                top: 64px;
+                left: 0;
+            }
+            
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+            
+            .message-bubble {
+                max-width: 90%;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 64px);
+            }
+        }
+        
+        .message-content pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        
+        .message-content code {
+            background: #e5e7eb;
+            color: #374151;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .message-content li {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="flex items-center">
+                            <i class="fas fa-seedling text-green-600 text-2xl mr-2"></i>
+                            <span class="text-xl font-bold text-gray-800">Raitha Mitra</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-700 hover:text-green-600 font-medium">
+                        <i class="fas fa-home mr-1"></i>Home
+                    </a>
+                    <div id="userMenu" class="flex items-center space-x-4">
+                        <span id="userGreeting" class="text-gray-700 font-medium"></span>
+                        <button id="logoutBtn" class="text-red-600 hover:text-red-700 font-medium">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Chat Interface -->
+    <div class="pt-16 flex h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-80 bg-white border-r border-gray-200 flex flex-col sidebar-hidden md:sidebar-visible">
+            <!-- Sidebar Header -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-robot text-green-600 mr-2"></i>
+                        AI Assistant
+                    </h2>
+                    <button id="newChatBtn" class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                        <i class="fas fa-plus mr-1"></i>New Chat
+                    </button>
+                </div>
+                <div class="text-sm text-gray-600">
+                    Ask me anything about farming, crops, diseases, or agriculture!
+                </div>
+            </div>
+            
+            <!-- Conversations List -->
+            <div class="flex-1 overflow-y-auto">
+                <div id="conversationsList" class="p-2">
+                    <!-- Conversations will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat Header -->
+            <div class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button id="toggleSidebar" class="md:hidden text-gray-600 hover:text-gray-800 mr-3">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h3 id="chatTitle" class="font-semibold text-gray-800">AI Assistant</h3>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="clearChatBtn" class="text-gray-600 hover:text-red-600 transition-colors" title="Clear Chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="messagesContainer" class="chat-messages flex-1 p-4 space-y-4">
+                <!-- Welcome Message -->
+                <div class="flex justify-center">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md text-center">
+                        <i class="fas fa-robot text-green-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-green-800 mb-1">Welcome to AI Assistant!</h4>
+                        <p class="text-green-700 text-sm">I'm here to help you with farming questions, crop advice, disease identification, and more. What would you like to know?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-white border-t border-gray-200 p-4">
+                <div class="flex items-end space-x-3">
+                    <div class="flex-1">
+                        <textarea 
+                            id="messageInput" 
+                            class="chat-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                            placeholder="Ask me anything about farming..."
+                            rows="1"></textarea>
+                    </div>
+                    <button 
+                        id="sendBtn" 
+                        class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="mt-2 text-xs text-gray-500 text-center">
+                    Press Enter to send, Shift+Enter for new line
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Floating New Chat Button -->
+    <button id="mobileNewChatBtn" class="md:hidden fixed bottom-20 right-4 bg-green-600 text-white w-14 h-14 rounded-full shadow-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center z-30">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+            <span class="text-gray-700">Loading...</span>
+        </div>
+    </div>
+
+    <script>
+        class AIChat {
+            constructor() {
+                this.currentUser = null;
+                this.currentConversationId = null;
+                this.conversations = [];
+                this.isTyping = false;
+                
+                this.init();
+            }
+            
+            async init() {
+                await this.checkAuth();
+                this.setupEventListeners();
+                await this.loadConversations();
+                this.setupAutoResize();
+                this.initializeMobileLayout();
+            }
+            
+            async checkAuth() {
+                const user = localStorage.getItem('currentUser');
+                
+                try {
+                    if (!user) {
+                        console.log('No user found in localStorage, redirecting to login');
+                        window.location.href = '/login';
+                        return;
+                    }
+                    
+                    // Try to parse the user data
+                    this.currentUser = JSON.parse(user);
+                    
+                    // Validate user object
+                    if (!this.currentUser || !this.currentUser.id || !this.currentUser.name) {
+                        throw new Error('Invalid user data');
+                    }
+                    
+                    console.log('User authenticated:', this.currentUser.name);
+                    
+                } catch (error) {
+                    console.error('Error parsing user data from localStorage:', error);
+                    console.log('Clearing invalid data and redirecting to login');
+                    
+                    // Clear invalid data and redirect to login
+                    localStorage.clear();
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                document.getElementById('userGreeting').textContent = `Hello, ${this.currentUser.name}`;
+                console.log('Current user:', this.currentUser);
+            }
+            
+            setupEventListeners() {
+                // Send message
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                
+                // Enter key handling
+                document.getElementById('messageInput').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                // New chat
+                document.getElementById('newChatBtn').addEventListener('click', () => this.createNewChat());
+                
+                // Mobile new chat button
+                const mobileNewChatBtn = document.getElementById('mobileNewChatBtn');
+                if (mobileNewChatBtn) {
+                    mobileNewChatBtn.addEventListener('click', () => this.createNewChat());
+                }
+                
+                // Clear chat
+                document.getElementById('clearChatBtn').addEventListener('click', () => this.clearCurrentChat());
+                
+                // Toggle sidebar
+                document.getElementById('toggleSidebar').addEventListener('click', () => this.toggleSidebar());
+                
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+            }
+            
+            setupAutoResize() {
+                const textarea = document.getElementById('messageInput');
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            }
+            
+            initializeMobileLayout() {
+                const sidebar = document.getElementById('sidebar');
+                
+                // On mobile, ensure sidebar starts hidden
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('sidebar-hidden');
+                    sidebar.classList.remove('sidebar-visible');
+                } else {
+                    sidebar.classList.remove('sidebar-hidden');
+                    sidebar.classList.add('sidebar-visible');
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 768) {
+                        sidebar.classList.remove('sidebar-hidden');
+                        sidebar.classList.add('sidebar-visible');
+                        // Remove mobile overlay if it exists
+                        const overlay = document.getElementById('mobileOverlay');
+                        if (overlay) {
+                            overlay.remove();
+                        }
+                    } else {
+                        sidebar.classList.add('sidebar-hidden');
+                        sidebar.classList.remove('sidebar-visible');
+                    }
+                });
+            }
+            
+            async loadConversations() {
+                try {
+                    const response = await fetch('/api/chat/conversations', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-User-ID': this.currentUser.id
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.conversations = await response.json();
+                        this.renderConversations();
+                    }
+                } catch (error) {
+                    console.error('Error loading conversations:', error);
+                }
+            }
+            
+            renderConversations() {
+                const container = document.getElementById('conversationsList');
+                
+                if (this.conversations.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-comments text-3xl mb-2"></i>
+                            <p>No conversations yet</p>
+                            <p class="text-sm">Start a new chat to begin!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.conversations.map(conv => `
+                    <div class="conversation-item p-3 rounded-lg cursor-pointer mb-2 ${conv.id === this.currentConversationId ? 'active' : ''}" 
+                         data-id="${conv.id}">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-800 truncate">${conv.title}</h4>
+                                <p class="text-sm text-gray-600 truncate mt-1">${conv.last_message || 'No messages yet'}</p>
+                                <p class="text-xs text-gray-500 mt-1">${this.formatDate(conv.updated_at)}</p>
+                            </div>
+                            <button class="delete-conversation text-gray-400 hover:text-red-600 ml-2" 
+                                    data-id="${conv.id}" title="Delete conversation">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add event listeners
+                container.querySelectorAll('.conversation-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (!e.target.closest('.delete-conversation')) {
+                            this.loadConversation(parseInt(item.dataset.id));
+                        }
+                    });
+                });
+                
+                container.querySelectorAll('.delete-conversation').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.deleteConversation(parseInt(btn.dataset.id));
+                    });
+                });
+            }
+            
+            async createNewChat() {
+                try {
+                    console.log('Creating new chat for user:', this.currentUser.id);
+                    const response = await fetch('/api/chat/conversations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-User-ID': this.currentUser.id
+                        },
+                        body: JSON.stringify({ title: 'New Chat' })
+                    });
+                    
+                    console.log('Create chat response status:', response.status);
+                    
+                    if (response.ok) {
+                        const newConv = await response.json();
+                        console.log('New conversation created:', newConv);
+                        this.conversations.unshift(newConv);
+                        this.renderConversations();
+                        this.currentConversationId = newConv.id;
+                        console.log('Set current conversation ID to:', this.currentConversationId);
+                        
+                        // Clear the chat area and show welcome message
+                        this.clearChatArea();
+                        
+                        // On mobile, close the sidebar after creating new chat
+                        if (window.innerWidth <= 768) {
+                            const sidebar = document.getElementById('sidebar');
+                            if (!sidebar.classList.contains('sidebar-hidden')) {
+                                this.toggleSidebar();
+                            }
+                        }
+                        
+                        // Focus on message input
+                        const messageInput = document.getElementById('messageInput');
+                        if (messageInput) {
+                            messageInput.focus();
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error creating chat:', errorData);
+                    }
+                } catch (error) {
+                    console.error('Error creating new chat:', error);
+                }
+            }
+            
+            async loadConversation(conversationId) {
+                this.currentConversationId = conversationId;
+                
+                try {
+                    const response = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
+                        headers: {
+                            'X-User-ID': this.currentUser.id
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const messages = await response.json();
+                        this.renderMessages(messages);
+                        this.renderConversations(); // Update active state
+                        
+                        // On mobile, close the sidebar after selecting conversation
+                        if (window.innerWidth <= 768) {
+                            const sidebar = document.getElementById('sidebar');
+                            if (!sidebar.classList.contains('sidebar-hidden')) {
+                                this.toggleSidebar();
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading conversation:', error);
+                }
+            }
+            
+            renderMessages(messages) {
+                const container = document.getElementById('messagesContainer');
+                
+                // Clear existing messages except welcome message
+                const welcomeMsg = container.querySelector('.bg-green-50');
+                container.innerHTML = '';
+                if (messages.length === 0 && welcomeMsg) {
+                    container.appendChild(welcomeMsg);
+                }
+                
+                messages.forEach(msg => {
+                    this.addMessageToUI(msg.message, 'user', false);
+                    if (msg.response) {
+                        this.addMessageToUI(msg.response, 'ai', false);
+                    }
+                });
+                
+                this.scrollToBottom();
+            }
+            
+            async sendMessage() {
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
+                
+                console.log('Send message called with:', message);
+                console.log('Current user:', this.currentUser);
+                console.log('Is typing:', this.isTyping);
+                
+                if (!message || this.isTyping) {
+                    console.log('Message empty or already typing, returning');
+                    return;
+                }
+                
+                // Create conversation if none exists
+                if (!this.currentConversationId) {
+                    console.log('No conversation ID, creating new chat');
+                    await this.createNewChat();
+                }
+                
+                console.log('Current conversation ID:', this.currentConversationId);
+                
+                // Add user message to UI
+                this.addMessageToUI(message, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Show typing indicator
+                this.showTypingIndicator();
+                
+                try {
+                    console.log('Sending request to API...');
+                    const response = await fetch('/api/chat/message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-User-ID': this.currentUser.id
+                        },
+                        body: JSON.stringify({
+                            conversation_id: this.currentConversationId,
+                            message: message
+                        })
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Response data:', data);
+                        this.hideTypingIndicator();
+                        this.addMessageToUI(data.response, 'ai');
+                        
+                        // Update conversation title if it's the first message
+                        if (data.title_updated) {
+                            await this.loadConversations();
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        console.error('API error:', errorData);
+                        throw new Error(`Failed to send message: ${errorData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    this.hideTypingIndicator();
+                    this.addMessageToUI('Sorry, I encountered an error. Please try again.', 'ai');
+                }
+            }
+            
+            addMessageToUI(message, type, animate = true) {
+                const container = document.getElementById('messagesContainer');
+                
+                // Remove welcome message if it exists
+                const welcomeMsg = container.querySelector('.bg-green-50');
+                if (welcomeMsg) {
+                    welcomeMsg.remove();
+                }
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `message-bubble p-3 ${type === 'user' ? 'user-message' : 'ai-message'}`;
+                
+                if (type === 'ai') {
+                    bubble.innerHTML = `
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-robot text-green-600 mt-1"></i>
+                            <div class="message-content">${this.formatMessage(message)}</div>
+                        </div>
+                    `;
+                } else {
+                    bubble.innerHTML = `<div class="message-content">${this.formatMessage(message)}</div>`;
+                }
+                
+                messageDiv.appendChild(bubble);
+                container.appendChild(messageDiv);
+                
+                this.scrollToBottom();
+            }
+            
+            showTypingIndicator() {
+                this.isTyping = true;
+                const container = document.getElementById('messagesContainer');
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'flex justify-start';
+                typingDiv.id = 'typingIndicator';
+                
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-robot text-green-600"></i>
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+            
+            hideTypingIndicator() {
+                this.isTyping = false;
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+            
+            formatMessage(message) {
+                // Convert markdown-like formatting to HTML
+                return message
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/• /g, '• '); // Preserve bullet points
+            }
+            
+            async clearCurrentChat() {
+                if (!this.currentConversationId) return;
+                
+                if (confirm('Are you sure you want to clear this conversation?')) {
+                    await this.deleteConversation(this.currentConversationId);
+                }
+            }
+            
+            async deleteConversation(conversationId) {
+                try {
+                    const response = await fetch(`/api/chat/conversations/${conversationId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-User-ID': this.currentUser.id
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.conversations = this.conversations.filter(c => c.id !== conversationId);
+                        this.renderConversations();
+                        
+                        if (this.currentConversationId === conversationId) {
+                            this.currentConversationId = null;
+                            document.getElementById('messagesContainer').innerHTML = `
+                                <div class="flex justify-center">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md text-center">
+                                        <i class="fas fa-robot text-green-600 text-2xl mb-2"></i>
+                                        <h4 class="font-semibold text-green-800 mb-1">Welcome to AI Assistant!</h4>
+                                        <p class="text-green-700 text-sm">I'm here to help you with farming questions, crop advice, disease identification, and more. What would you like to know?</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error deleting conversation:', error);
+                }
+            }
+            
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('sidebar-hidden');
+                
+                // On mobile, also add/remove overlay to prevent background interaction
+                if (window.innerWidth <= 768) {
+                    this.toggleMobileOverlay();
+                }
+            }
+            
+            toggleMobileOverlay() {
+                let overlay = document.getElementById('mobileOverlay');
+                const sidebar = document.getElementById('sidebar');
+                
+                if (sidebar.classList.contains('sidebar-hidden')) {
+                    // Remove overlay
+                    if (overlay) {
+                        overlay.remove();
+                    }
+                } else {
+                    // Add overlay
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'mobileOverlay';
+                        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden';
+                        overlay.addEventListener('click', () => this.toggleSidebar());
+                        document.body.appendChild(overlay);
+                    }
+                }
+            }
+            
+            scrollToBottom() {
+                const container = document.getElementById('messagesContainer');
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 100);
+            }
+            
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diff = now - date;
+                
+                if (diff < 24 * 60 * 60 * 1000) {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } else if (diff < 7 * 24 * 60 * 60 * 1000) {
+                    return date.toLocaleDateString([], { weekday: 'short' });
+                } else {
+                    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                }
+            }
+            
+            clearChatArea() {
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = `
+                    <div class="flex justify-center">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md text-center">
+                            <i class="fas fa-robot text-green-600 text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-green-800 mb-1">Welcome to AI Assistant!</h4>
+                            <p class="text-green-700 text-sm">I'm here to help you with farming questions, crop advice, disease identification, and more. What would you like to know?</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            logout() {
+                localStorage.removeItem('currentUser');
+                window.location.href = '/login';
+            }
+        }
+        
+        // Initialize chat when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChat();
+        });
+    </script>
+</body>
+</html>

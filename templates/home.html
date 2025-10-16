@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raitha Mitra - Smart Farming Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-seedling text-green-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-800">Raitha Mitra</span>
+                    </div>
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="md:hidden ml-4 text-gray-600 hover:text-gray-800 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-green-600 font-medium">Home</a>
+                    <a href="#features" class="text-gray-700 hover:text-green-600 font-medium">Features</a>
+                    <a href="#about" class="text-gray-700 hover:text-green-600 font-medium">About</a>
+                    <a href="#contact" class="text-gray-700 hover:text-green-600 font-medium">Contact</a>
+                    <a href="/aichat" id="aiChatNavLink" class="text-gray-700 hover:text-green-600 font-medium flex items-center hidden">
+                        <i class="fas fa-robot mr-1"></i>AI Chat
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Show when not logged in -->
+                    <div id="authButtons" class="flex items-center space-x-4">
+                        <button id="loginBtn" class="text-green-600 hover:text-green-700 font-medium">Login</button>
+                        <button id="registerBtn" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg">Register</button>
+                    </div>
+                    
+                    <!-- Show when logged in -->
+                    <div id="userMenu" class="hidden flex items-center space-x-4">
+                        <span id="userGreeting" class="text-gray-700 font-medium"></span>
+                        <div class="relative">
+                            <button id="profileBtn" class="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                <div class="py-2">
+                                    <button id="viewProfileBtn" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                                        <i class="fas fa-user-circle mr-2"></i>View Profile
+                                    </button>
+                                    <button id="changePasswordBtn" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                                        <i class="fas fa-key mr-2"></i>Change Password
+                                    </button>
+                                    <button id="predictionHistoryBtn" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                                        <i class="fas fa-history mr-2"></i>Prediction History
+                                    </button>
+                                    <hr class="my-2">
+                                    <button id="logoutBtn" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Sidebar -->
+        <div id="mobileMenu" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+            <!-- Mobile Menu Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <i class="fas fa-seedling text-green-600 text-xl mr-2"></i>
+                    <span class="text-lg font-bold text-gray-800">Menu</span>
+                </div>
+                <button id="closeMobileMenu" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu Content -->
+            <div class="py-4">
+                <nav class="space-y-1 px-4">
+                    <a href="#home" class="mobile-menu-link flex items-center px-3 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-home mr-3 w-5"></i>Home
+                    </a>
+                    <a href="#features" class="mobile-menu-link flex items-center px-3 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-star mr-3 w-5"></i>Features
+                    </a>
+                    <a href="#about" class="mobile-menu-link flex items-center px-3 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-info-circle mr-3 w-5"></i>About
+                    </a>
+                    <a href="#contact" class="mobile-menu-link flex items-center px-3 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-envelope mr-3 w-5"></i>Contact
+                    </a>
+                    <a href="/aichat" id="aiChatMobileLink" class="mobile-menu-link flex items-center px-3 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors hidden">
+                        <i class="fas fa-robot mr-3 w-5"></i>AI Chat
+                    </a>
+                    <a href="/disease-detection" class="mobile-menu-link flex items-center px-3 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-microscope mr-3 w-5"></i>Disease Detection
+                    </a>
+                </nav>
+                
+                <!-- Mobile Auth Section -->
+                <div class="mt-6 px-4">
+                    <div id="mobileAuthButtons" class="space-y-2">
+                        <a href="/login" class="flex items-center justify-center w-full px-4 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="/register" class="flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-user-plus mr-2"></i>Register
+                        </a>
+                    </div>
+                    
+                    <div id="mobileUserMenu" class="hidden">
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p id="mobileUserGreeting" class="font-medium text-gray-800"></p>
+                                    <p class="text-sm text-gray-600">Farmer</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="mobileLogoutBtn" class="flex items-center w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <i class="fas fa-sign-out-alt mr-3 w-5"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+    </nav>
+
+    <!-- Hero Section with Video Background -->
+    <section id="home" class="relative pt-16 pb-20 min-h-screen flex items-center overflow-hidden">
+        <!-- Dynamic Background -->
+        <div class="absolute inset-0 w-full h-full">
+            <!-- Animated Background Images -->
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000" 
+                 id="heroBackground"
+                 style="background-image: url('https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1920&h=1080&fit=crop&crop=center')">
+            </div>
+            
+            <!-- Video Background (if available) -->
+            <video 
+                id="heroVideo"
+                class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
+                autoplay 
+                muted 
+                loop 
+                playsinline
+                style="display: none;">
+                <!-- Try to load a farming video -->
+                <source src="https://cdn.coverr.co/videos/coverr-farmer-walking-through-crop-field-4754/1080p.mp4" type="video/mp4">
+                <source src="https://cdn.coverr.co/videos/coverr-aerial-view-of-green-farmland-4755/1080p.mp4" type="video/mp4">
+            </video>
+            
+            <!-- Animated Particles -->
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="floating-particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+            </div>
+            
+            <!-- Overlay for better text readability -->
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-green-900/60 via-transparent to-blue-900/60"></div>
+        </div>
+        
+        <!-- Content -->
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 hero-text">
+                    Smart Farming with <span class="text-green-200">AI Technology</span>
+                </h1>
+                <p class="text-xl text-green-100 mb-8 max-w-3xl mx-auto hero-text">
+                    Detect crop diseases instantly, get expert treatment advice, and access real-time market prices. 
+                    Empowering farmers with cutting-edge AI solutions.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="diseaseDetectionBtn" class="hero-button bg-gradient-to-r from-emerald-500 to-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:from-emerald-600 hover:to-green-700 hover:shadow-xl">
+                        <i class="fas fa-camera mr-2"></i>
+                        Start Disease Detection
+                    </button>
+                    <button id="watchDemoBtn" class="hero-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 hover:shadow-xl">
+                        <i class="fas fa-play mr-2"></i>
+                        Watch Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
+            <i class="fas fa-chevron-down text-2xl"></i>
+        </div>
+    </section>
+
+    <!-- Weather Widget Section -->
+    <section class="py-8 bg-gradient-to-r from-blue-50 to-green-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex flex-col lg:flex-row items-center justify-between">
+                    <!-- Current Weather -->
+                    <div class="flex items-center space-x-6 mb-4 lg:mb-0">
+                        <div class="text-center">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Current Weather</h3>
+                            <div id="weatherWidget" class="flex items-center space-x-4">
+                                <!-- Weather Icon -->
+                                <div class="flex-shrink-0">
+                                    <img id="weatherIcon" src="" alt="Weather" class="w-16 h-16">
+                                </div>
+                                
+                                <!-- Weather Info -->
+                                <div class="text-left">
+                                    <div class="flex items-center space-x-2">
+                                        <span id="weatherTemp" class="text-3xl font-bold text-gray-800">--°C</span>
+                                        <div class="text-sm text-gray-600">
+                                            <div id="weatherLocation" class="font-medium">Loading...</div>
+                                            <div id="weatherDescription" class="capitalize">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather Details -->
+                        <div class="hidden md:block border-l border-gray-200 pl-6">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-eye text-blue-500"></i>
+                                    <span class="text-gray-600">Feels like</span>
+                                    <span id="weatherFeelsLike" class="font-medium">--°C</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-tint text-blue-500"></i>
+                                    <span class="text-gray-600">Humidity</span>
+                                    <span id="weatherHumidity" class="font-medium">--%</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-wind text-blue-500"></i>
+                                    <span class="text-gray-600">Wind</span>
+                                    <span id="weatherWind" class="font-medium">-- km/h</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-thermometer-half text-blue-500"></i>
+                                    <span class="text-gray-600">Pressure</span>
+                                    <span id="weatherPressure" class="font-medium">-- hPa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Weather Forecast -->
+                    <div class="flex-1 max-w-md">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3 text-center">5-Day Forecast</h4>
+                        <div id="weatherForecast" class="flex justify-between space-x-2">
+                            <!-- Forecast items will be populated by JavaScript -->
+                            <div class="forecast-item text-center p-2 rounded-lg bg-gray-50 flex-1">
+                                <div class="text-xs text-gray-600 mb-1">Loading...</div>
+                                <img src="" alt="" class="w-8 h-8 mx-auto mb-1">
+                                <div class="text-xs font-medium text-gray-800">--°</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Location Button -->
+                    <div class="mt-4 lg:mt-0">
+                        <button id="getLocationBtn" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            Use My Location
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Weather Status -->
+                <div id="weatherStatus" class="mt-4 text-center text-sm text-gray-500 hidden">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <span id="weatherStatusText">Loading weather data...</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Comprehensive Farming Solutions
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    From disease detection to market insights, we provide everything you need for successful farming
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Disease Detection -->
+                <div class="feature-card bg-gray-50 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-microscope text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">AI Disease Detection</h3>
+                    <p class="text-gray-600">Instantly identify crop diseases using advanced AI technology with 95% accuracy</p>
+                </div>
+
+                <!-- Market Prices -->
+                <div class="feature-card bg-gray-50 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Real-time Market Prices</h3>
+                    <p class="text-gray-600">Get current market rates from major mandis to make informed selling decisions</p>
+                </div>
+
+                <!-- Expert Advice -->
+                <div class="feature-card bg-gray-50 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-user-md text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Expert Treatment Advice</h3>
+                    <p class="text-gray-600">Receive detailed treatment recommendations in your local language</p>
+                </div>
+
+                <!-- Equipment Rental -->
+                <div class="feature-card bg-gray-50 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-tractor text-orange-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Equipment Rental</h3>
+                    <p class="text-gray-600">Rent modern farming equipment and tools at affordable rates</p>
+                </div>
+
+                <!-- Labor Management -->
+                <div class="feature-card bg-gray-50 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-users text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Labor Management</h3>
+                    <p class="text-gray-600">Find and manage farm workers efficiently for your agricultural needs</p>
+                </div>
+
+                <!-- Government Schemes -->
+                <div class="feature-card bg-gray-50 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-landmark text-indigo-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Government Schemes</h3>
+                    <p class="text-gray-600">Access information about subsidies and government support programs</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                        Empowering Farmers with Technology
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Raitha Mitra is dedicated to revolutionizing agriculture through artificial intelligence. 
+                        We provide farmers with instant access to expert knowledge, helping them make informed decisions 
+                        and improve their crop yields.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                            <span class="text-gray-700">95% accuracy in disease detection</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                            <span class="text-gray-700">Support for 38+ crop diseases</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                            <span class="text-gray-700">Multi-language support</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                            <span class="text-gray-700">Real-time market data</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=300&h=200&fit=crop" alt="Farmer with crops" class="rounded-lg shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=300&h=200&fit=crop" alt="Modern farming" class="rounded-lg shadow-lg mt-8">
+                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop" alt="Crop field" class="rounded-lg shadow-lg -mt-8">
+                    <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=300&h=200&fit=crop" alt="Agricultural technology" class="rounded-lg shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+                Ready to Transform Your Farming?
+            </h2>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Join thousands of farmers who are already using  Raitha Mitra to improve their crop yields and income
+            </p>
+            <button id="getStartedBtn" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                Get Started Today
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-seedling text-green-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-white">Raitha Mitra</span>
+                    </div>
+                    <p class="text-gray-400">Empowering farmers with AI-driven solutions for better crop management and higher yields.</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-white">Features</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white">About</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Services</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Disease Detection</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Market Prices</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Expert Advice</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Equipment Rental</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Contact Info</h3>
+                    <div class="space-y-2">
+                        <p class="text-gray-400"><i class="fas fa-phone mr-2"></i>+91 98765 43210</p>
+                        <p class="text-gray-400"><i class="fas fa-envelope mr-2"></i>info@raithamitra.com</p>
+                        <p class="text-gray-400"><i class="fas fa-map-marker-alt mr-2"></i>Bengaluru, Karnataka</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 Raitha Mitra. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Video Demo Modal -->
+    <div id="videoDemoModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-6xl mx-4 max-h-[95vh] overflow-hidden shadow-2xl">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-3xl font-bold text-gray-900">Disease Detection Demo</h3>
+                    <p class="text-gray-600 mt-1">Watch how AI identifies crop diseases and provides treatment recommendations</p>
+                </div>
+                <button id="closeVideoModal" class="text-gray-400 hover:text-gray-600 text-3xl transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Video Container -->
+            <div class="relative bg-gray-900 rounded-xl overflow-hidden mb-6">
+                <div class="aspect-video relative">
+                    <!-- Video Player -->
+                    <div id="videoContainer" class="w-full h-full">
+                        <video id="demoVideo" class="w-full h-full object-cover" controls poster="/static/videos/demo-poster.svg">
+                            <source src="/static/videos/actual_demo.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <!-- Video Controls Overlay -->
+                    <div id="videoControls" class="absolute bottom-4 right-4 flex items-center space-x-2 text-white">
+                        <button id="fullscreenBtn" class="bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full p-2 transition-all">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demo Steps -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">1</div>
+                        <h5 class="font-semibold text-gray-800">Upload Image</h5>
+                    </div>
+                    <p class="text-sm text-gray-600">Take or upload a photo of the affected crop leaf</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">2</div>
+                        <h5 class="font-semibold text-gray-800">AI Analysis</h5>
+                    </div>
+                    <p class="text-sm text-gray-600">Advanced AI analyzes the image for disease patterns</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-200">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">3</div>
+                        <h5 class="font-semibold text-gray-800">Disease Detection</h5>
+                    </div>
+                    <p class="text-sm text-gray-600">Identifies specific diseases with 95% accuracy</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 p-4 rounded-xl border border-orange-200">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">4</div>
+                        <h5 class="font-semibold text-gray-800">Treatment Plan</h5>
+                    </div>
+                    <p class="text-sm text-gray-600">Provides organic and chemical treatment options</p>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="tryNowBtn" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-camera mr-2"></i>
+                    Try Disease Detection Now
+                </button>
+                <button id="learnMoreBtn" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Learn More About AI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/weather.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/video-modal.js') }}"></script>
+</body>
+</html>

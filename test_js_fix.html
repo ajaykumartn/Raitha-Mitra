@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Fix Test</title>
+</head>
+<body>
+    <h1>JavaScript Fix Test</h1>
+    
+    <!-- Test links that might cause issues -->
+    <a href="#">Empty hash link</a><br>
+    <a href="#home">Valid hash link</a><br>
+    <a href="#nonexistent">Non-existent hash link</a><br>
+    
+    <div id="home" style="margin-top: 1000px;">
+        <h2>Home Section</h2>
+        <p>This is the home section for testing smooth scrolling.</p>
+    </div>
+    
+    <script src="static/js/main.js"></script>
+    <script>
+        // Test the smooth scrolling setup
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Testing smooth scrolling setup...');
+            setupSmoothScrolling();
+            console.log('Smooth scrolling setup completed without errors!');
+        });
+    </script>
+</body>
+</html>
