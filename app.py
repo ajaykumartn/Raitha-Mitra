@@ -1567,9 +1567,10 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     
-    if os.getenv('RENDER'):
-        # Running on Render
-        print("🚀 Starting on Render...")
+    if os.getenv('RENDER') or os.getenv('PORT'):
+        # Running on Render or other cloud platform
+        print("🚀 Starting on cloud platform...")
+        app.run(debug=False, host='0.0.0.0', port=port)
     else:
         # Running locally
         print("🏠 Open http://127.0.0.1:5000 in your browser")
