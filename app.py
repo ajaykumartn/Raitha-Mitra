@@ -1561,8 +1561,16 @@ if __name__ == '__main__':
     print("   Email: demo@raithamitra.com")
     print("   Mobile: 9876543210")
     print("   Password: 123456")
-    print("🏠 Open http://127.0.0.1:5000 in your browser")
     print("=" * 50)
     
-    app.run(debug=os.getenv('FLASK_DEBUG', 'True').lower() == 'true', 
-            host='127.0.0.1', port=5000)
+    # Production configuration
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    if os.getenv('RENDER'):
+        # Running on Render
+        print("🚀 Starting on Render...")
+    else:
+        # Running locally
+        print("🏠 Open http://127.0.0.1:5000 in your browser")
+        app.run(debug=debug, host='127.0.0.1', port=port)
