@@ -87,7 +87,7 @@
                     <div class="flex space-x-2">
                         <input type="text" id="location" name="location" required 
                                class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
-                               placeholder="Click to get current location" readonly>
+                               placeholder="Click to get location or type manually">
                         <button type="button" id="getLocationBtn" 
                                 class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg">
                             <i class="fas fa-crosshairs"></i>
@@ -124,5 +124,19 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        // Make location field editable when clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationInput = document.getElementById('location');
+            if (locationInput) {
+                locationInput.addEventListener('click', function() {
+                    this.readOnly = false;
+                    this.classList.remove('bg-gray-50');
+                    this.classList.add('bg-white');
+                    this.placeholder = 'Enter your location';
+                });
+            }
+        });
+    </script>
 </body>
 </html>

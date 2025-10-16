@@ -119,6 +119,14 @@ class AuthManager {
                 this.handleRegister();
             });
         }
+
+        // Add location button event listener for registration
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        if (getLocationBtn) {
+            getLocationBtn.addEventListener('click', () => {
+                this.getUserLocation();
+            });
+        }
     }
 
     checkAuthState() {
@@ -869,6 +877,102 @@ class AuthManager {
             successText.textContent = message;
             successDiv.classList.remove('hidden');
         }
+    }
+
+    getUserLocation() {
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const locationInput = document.getElementById('location');
+        
+        if (!navigator.geolocation) {
+            this.showError('Geolocation is not supported by this browser');
+            return;
+        }
+
+        // Update button state
+        if (getLocationBtn) {
+            getLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            getLocationBtn.disabled = true;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                try {
+                    // Use reverse geocoding to get address
+                    const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=YOUR_API_KEY`);
+                    
+                    // For now, just use coordinates as fallback
+                    const locationText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                    
+                    if (locationInput) {
+                        locationInput.value = locationText;
+                        locationInput.classList.remove('bg-gray-50');
+                        locationInput.classList.add('bg-white');
+                    }
+                    
+                    // Reset button
+                    if (getLocationBtn) {
+                        getLocationBtn.innerHTML = '<i class="fas fa-check text-green-600"></i>';
+                        getLocationBtn.disabled = false;
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            if (getLocationBtn) {
+                                getLocationBtn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                            }
+                        }, 2000);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error getting location details:', error);
+                    
+                    // Use coordinates as fallback
+                    const locationText = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                    if (locationInput) {
+                        locationInput.value = locationText;
+                        locationInput.classList.remove('bg-gray-50');
+                        locationInput.classList.add('bg-white');
+                    }
+                    
+                    // Reset button
+                    if (getLocationBtn) {
+                        getLocationBtn.innerHTML = '<i class="fas fa-check text-green-600"></i>';
+                        getLocationBtn.disabled = false;
+                        
+                        setTimeout(() => {
+                            if (getLocationBtn) {
+                                getLocationBtn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                            }
+                        }, 2000);
+                    }
+                }
+            },
+            (error) => {
+                console.error('Geolocation error:', error);
+                this.showError('Unable to get your location. Please enter manually.');
+                
+                // Make input editable
+                if (locationInput) {
+                    locationInput.readOnly = false;
+                    locationInput.placeholder = 'Enter your location manually';
+                    locationInput.classList.remove('bg-gray-50');
+                    locationInput.classList.add('bg-white');
+                }
+                
+                // Reset button
+                if (getLocationBtn) {
+                    getLocationBtn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                    getLocationBtn.disabled = false;
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000
+            }
+        );
     }
 }
 
