@@ -179,7 +179,7 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     }
 
     try {
-        const response = await fetch(`http://127.0.0.1:5000${endpoint}`, config);
+        const response = await fetch(`${endpoint}`, config);
         const result = await response.json();
 
         if (!response.ok) {
