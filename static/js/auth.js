@@ -112,7 +112,7 @@ class AuthManager {
         }
 
         // Register form
-        const registerForm = document.getElementById('registerForm');
+        const registerForm = document.getElementById('registrationForm');
         if (registerForm) {
             registerForm.addEventListener('submit', (e) => {
                 e.preventDefault();
